@@ -1,0 +1,2 @@
+-- V2.0 gift simulation
+create or replace function public.resolve_gift_simulation(p_gift_id uuid) returns jsonb language plpgsql security definer set search_path=public as $$ declare g public.gift_catalog%rowtype; begin select * into g from public.gift_catalog where id=p_gift_id and active=true; if not found then raise exception 'Gift not found'; end if; return jsonb_build_object('gift',g.gift_key,'category',g.category,'simulation_only',true); end; $$;
