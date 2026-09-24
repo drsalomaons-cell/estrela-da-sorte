@@ -16,5 +16,6 @@ create index if not exists ecosystem_members_user_idx on public.ecosystem_member
 create index if not exists ecosystem_members_parent_idx on public.ecosystem_members(parent_member_id);
 create index if not exists ecosystem_members_role_idx on public.ecosystem_members(role_code,status);
 alter table public.ecosystem_members enable row level security;
-create policy "ecosystem members own read" on public.ecosystem_members for select to authenticated
-using (user_id=auth.uid() or parent_member_id in (select id from public.ecosystem_members where user_id=auth.uid()));
+-- A função my_ecosystem_role é criada na migration V1.1; a política é recriada nela.
+drop policy if exists "ecosystem members scoped read" on public.ecosystem_members;
+using (user_id=auth.uid() or public.my_ecosystem_role() in ('SUPER_ADM','ADM_OFICIAL','BD','AGENCIA'));
