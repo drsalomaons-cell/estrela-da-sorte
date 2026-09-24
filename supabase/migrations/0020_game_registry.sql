@@ -1,0 +1,2 @@
+-- V2.2 unified game registry
+create table if not exists public.game_registry (game_key text primary key,name text not null,category text not null,slot_id uuid references public.slot_catalog(id) on delete set null,status text not null default 'planned',free_mode boolean not null default true,coin_mode boolean not null default false);
