@@ -2,6 +2,8 @@ import React,{useState}from"react";import{Gift,Gamepad2,Shield,Users,Settings,Mi
 const seats=Array.from({length:30},(_,i)=>({id:i+1,name:i<8?["Luna","Zang","Paty","Bailarina","Divino","Iris","Estrela","Brasil"][i]:"Cadeira "+(i+1),live:i<8}));
 const games=["Caçador / John Hunter","Trem / Train","Mr. Rich","Crazy Cream","Feijão","Ovo","Aviador / Foguete","Yumi","Zeus","Cleópatra","Ice","Ludo","Uno"];
 const economy=[["Plataforma",45],["Host",30],["Agência",9],["ADM Oficial",8],["BD",4],["Super ADM",2],["Eventos",1],["Reserva",1]];
+const simulationBase=10000;
+const simulation=economy.map(([name,pct])=>[name,Math.round(simulationBase*pct/100*100)/100]);
 function App(){const[tab,setTab]=useState("sala");const[room]=useState("Estrela Principal");return <div className="app">
 <header><div className="brand"><div className="logo">★</div><div><b>ESTRELA DA SORTE</b><span>VOICE • GAMES • ECOSSISTEMA</span></div></div><div className="status"><span className="dot"/>ONLINE</div></header>
 <nav>{[["sala","Sala",Mic],["jogos","Jogos",Gamepad2],["agencia","Agência",Users],["admin","ADM",Shield]].map(([id,label,Icon])=><button className={tab===id?"active":""} onClick={()=>setTab(id)} key={id}><Icon size={17}/>{label}</button>)}</nav>
