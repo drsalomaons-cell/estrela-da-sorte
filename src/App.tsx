@@ -30,3 +30,5 @@ function App(){const[tab,setTab]=useState("sala");const[room]=useState("Estrela 
 <div className="economyBox"><div><b>V1.3 — Eventos + presentes</b><span>Base inicial para calendário regional e presentes da sorte.</span></div><div className="economyGrid"><div><b>5</b><span>eventos-semente</span></div><div><b>3</b><span>presentes catalogados</span></div><div><b>15/85</b><span>peso sorte/desafortunado de teste</span></div><div><b>REGIONAL</b><span>BR • LATAM • GLOBAL</span></div></div><small>Os pesos são parâmetros iniciais de catálogo, não movimentam saldo real. O motor financeiro continua protegido pela simulação.</small></div>
 <div className="notice"><Settings size={17}/><span>Segurança: permissões devem ser aplicadas no backend Supabase. A interface não concede privilégios por conta própria.</span></div></section>}</main>
 <footer><span>Estrela da Sorte • Fundação 0.4</span><span>Economia: <b>simulação controlada</b></span></footer></div>}
+
+export default App;
