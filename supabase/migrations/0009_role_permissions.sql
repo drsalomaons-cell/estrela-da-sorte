@@ -42,3 +42,8 @@ begin
  if r='AGENCIA' then return target_parent in (select id from public.ecosystem_members where user_id=auth.uid() and status='active') and target_role='HOST'; end if;
  return false;
 end; $$;
+
+
+-- RLS da cadeia: a própria função consulta sob SECURITY DEFINER.
+create policy "ecosystem members scoped read" on public.ecosystem_members for select to authenticated
+using (user_id=auth.uid() or public.my_ecosystem_role() in ('SUPER_ADM','ADM_OFICIAL','BD','AGENCIA'));
