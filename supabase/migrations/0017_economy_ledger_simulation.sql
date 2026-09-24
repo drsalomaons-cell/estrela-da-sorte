@@ -1,0 +1,2 @@
+-- V1.9 placeholder audit ledger
+create table if not exists public.economy_ledger_simulation (id uuid primary key default gen_random_uuid(), event_type text not null, amount numeric(18,2) not null default 0, currency text not null default 'COIN', source text not null, created_at timestamptz not null default now());
