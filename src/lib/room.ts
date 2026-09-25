@@ -10,13 +10,16 @@ export type RoomSession = {
   chat_enabled: boolean;
 };
 
-export async function getLiveRoom(roomKey: string): Promise<RoomSession | null> {
+export async function getLiveRoom(roomKey?: string): Promise<RoomSession | null> {
   if (!supabase) throw new Error("Supabase não configurado");
-  const { data, error } = await supabase
+  let query = supabase
     .from("room_sessions")
     .select("id,room_key,title,status,seats,video_enabled,chat_enabled")
-    .eq("room_key", roomKey)
-    .maybeSingle();
+    .eq("status", "live");
+
+  if (roomKey) query = query.eq("room_key", roomKey);
+
+  const { data, error } = await query.order("created_at", { ascending: true }).limit(1).maybeSingle();
   if (error) throw error;
   return data as RoomSession | null;
 }
@@ -51,4 +54,22 @@ export async function listActiveSeats(roomId: string) {
     .order("seat_no");
   if (error) throw error;
   return data ?? [];
+}
+
+export async function getCurrentMemberId() {
+  if (!supabase) throw new Error("Supabase não configurado");
+  const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  const userId = sessionData.session?.user.id;
+  if (!userId) return null;
+
+  const { data, error } = await supabase
+    .from("ecosystem_members")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.id ?? null;
 }
