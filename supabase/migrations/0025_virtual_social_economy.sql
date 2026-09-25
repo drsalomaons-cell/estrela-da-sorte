@@ -1,6 +1,5 @@
 -- V2.11 — economia social interna, atômica e auditável
--- Esta migration trabalha apenas com créditos virtuais internos.
--- Não cria pagamento, saque, conversão em dinheiro ou integração financeira.
+-- Apenas créditos virtuais internos. Sem pagamento, saque ou conversão em dinheiro.
 
 create table if not exists public.user_wallets (
   user_id uuid primary key,
@@ -49,10 +48,9 @@ create policy "wallet own read" on public.user_wallets
 create policy "wallet ledger own read" on public.wallet_ledger
   for select to authenticated using (user_id = auth.uid());
 
-create policy "gift transfers authenticated read" on public.gift_transfers
+create policy "gift transfers sender read" on public.gift_transfers
   for select to authenticated using (sender_user_id = auth.uid());
 
--- Escrita de saldo/ledger fica exclusivamente no backend através das funções abaixo.
 revoke insert, update, delete on public.user_wallets from authenticated;
 revoke insert, update, delete on public.wallet_ledger from authenticated;
 revoke insert, update, delete on public.gift_transfers from authenticated;
@@ -106,6 +104,10 @@ declare
   v_transfer_id uuid;
   v_earnings bigint;
 begin
+  if auth.uid() is null or p_sender_user_id <> auth.uid() then
+    raise exception 'Sender must match authenticated user';
+  end if;
+
   if p_cost_credits <= 0 then
     raise exception 'Gift cost must be positive';
   end if;
@@ -169,4 +171,4 @@ end;
 $$;
 
 revoke execute on function public.grant_virtual_credits(uuid,bigint,text,uuid,jsonb) from public, anon, authenticated;
-revoke execute on function public.transfer_virtual_gift(uuid,uuid,uuid,uuid,bigint) from public, anon, authenticated;
+grant execute on function public.transfer_virtual_gift(uuid,uuid,uuid,uuid,bigint) to authenticated;
