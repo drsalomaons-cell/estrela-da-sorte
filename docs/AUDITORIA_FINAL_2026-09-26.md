@@ -144,3 +144,46 @@ A regra de status usada nesta auditoria é: **escrito ≠ compilado ≠ executad
 **Não há base para declarar 100% concluído ainda.** A parte que pode ser feita somente pelo repositório foi ampliada e auditada. O restante depende de execução real, credenciais/configuração e dispositivos.
 
 A auditoria agora distingue explicitamente **ativado no código**, **configurado**, **executado**, **testado** e **pronto para produção**.
+
+
+# RODADA 3 — CORREÇÃO APLICADA E GATE PARA INÍCIO DOS TESTES
+
+## Correção aplicada nesta rodada
+
+Foi encontrada uma inconsistência real na cadeia de migrations da economia virtual: a migration 0027_virtual_gift_pricing.sql recria a função transfer_virtual_gift e referencia public.gift_events, mas não havia uma migration correspondente criando essa tabela no repositório.
+
+Foi criada a migration supabase/migrations/0035_fix_virtual_gift_events.sql.
+
+Ela cria public.gift_events de forma idempotente, cria índices de sala e data, habilita RLS, permite somente leitura autenticada e mantém escrita bloqueada diretamente para clientes. A regra de créditos permanece estritamente virtual.
+
+Status: correção escrita e commitada no GitHub. A aplicação efetiva no banco ainda precisa ser executada em um projeto Supabase real.
+
+## Para começar os testes da plataforma
+
+1. Instalar dependências Node.
+2. Rodar npm run verify.
+3. Rodar npm run build.
+4. Configurar VITE_SUPABASE_URL e VITE_SUPABASE_ANON_KEY.
+5. Aplicar as migrations, incluindo 0035, no Supabase.
+6. Testar autenticação e RLS.
+7. Criar/confirmar uma sala live e testar cadeiras + Realtime.
+8. Testar chat Realtime em dois clientes.
+9. Configurar LiveKit e seu fluxo seguro de token; somente depois testar voz.
+10. Gerar APK/AAB e testar em aparelhos reais.
+11. Registrar evidências no checklist de release.
+
+## O que ainda não deve ser considerado concluído
+
+- Build real: pendente de execução.
+- Supabase real: pendente de aplicação/teste.
+- Auth/RLS: pendente de teste.
+- Sala/Realtime: pendente de teste.
+- Chat Realtime: pendente de teste.
+- Voz LiveKit: pendente de integração de token e teste.
+- APK/AAB: pendente de geração/instalação.
+- Jogos: os 20 registros continuam sendo catálogo; não são 20 jogos executáveis.
+- Produção: não liberada.
+
+## Critério de conclusão
+
+A plataforma só deve ser marcada como concluída quando cada item acima tiver evidência de execução. O repositório não será usado como substituto de teste real.
