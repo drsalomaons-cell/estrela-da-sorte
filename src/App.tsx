@@ -1,5 +1,6 @@
 import React,{useEffect,useMemo,useState}from"react";
 import RoleHierarchy from"./components/RoleHierarchy";
+import EventCalendar from"./components/EventCalendar";
 import{Gift,Gamepad2,Shield,Users,Settings,Mic,Video,MessageCircle,Star,Crown,ChevronRight,LogIn,LogOut,RefreshCw}from"lucide-react";
 import{getLiveRoom,getCurrentMemberId,claimSeat,leaveSeat,listActiveSeats,subscribeToRoomSeats,RoomSession}from"./lib/room";
 import{sendRoomMessage,subscribeToRoomChat}from"./lib/chat";
@@ -27,6 +28,6 @@ function App(){
  {room?.chat_enabled&&<section className="panel chatPanel"><div className="panelTitle"><span><MessageCircle size={18}/> Chat da sala</span><small>Realtime</small></div><div className="chatList">{chat.slice(-30).map(m=><div className="chatMsg" key={String(m.id)}><b>{String(m.sender_user_id).slice(0,8)}</b><span>{String(m.body)}</span></div>)}</div><div className="chatInput"><input value={message} maxLength={1000} onChange={e=>setMessage(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")void send()}} placeholder={memberId?"Digite uma mensagem…":"Login necessário para enviar"}/><button onClick={()=>void send()} disabled={!memberId||!message.trim()}>Enviar</button></div></section>}</section>}
  {tab==="jogos"&&<section className="panel"><div className="panelTitle"><span><Gamepad2 size={18}/> Jogos da sala</span><small>{games.length} registrados • 20 slots previstos</small></div><div className="gamegrid">{games.map((g,i)=><button className="game" key={g}><div className="gameIcon">{["♞","🚆","♛","🍦","🌱","🥚","🚀","🪐","⚡","👑","❄","🎲","🃏"][i]}</div><b>{g}</b><span>Entrar na sala <ChevronRight size={14}/></span></button>)}</div></section>}
  {tab==="agencia"&&<section className="panel"><div className="panelTitle"><span><Users size={18}/> Agência & Hosts</span><small>estrutura preparada</small></div><div className="cards"><div className="card"><Star/><b>Agência</b><p>Equipe, convites, metas, resultados e hosts vinculados.</p></div><div className="card"><Mic/><b>Host</b><p>Entrada por convite, sala, metas e desempenho.</p></div><div className="card"><Crown/><b>BD</b><p>Acompanhamento de agências ativas e desempenho.</p></div></div></section>}
- {tab==="admin"&&<section className="panel"><div className="panelTitle"><span><Shield size={18}/> Central ADM</span><small>controle por função</small></div><RoleHierarchy/><div className="notice"><Settings size={17}/><span>Permissões devem ser aplicadas no backend Supabase.</span></div></section>}</main>
+ {tab==="admin"&&<><section className="panel"><div className="panelTitle"><span><Shield size={18}/> Central ADM</span><small>controle por função</small></div><RoleHierarchy/><div className="notice"><Settings size={17}/><span>Permissões devem ser aplicadas no backend Supabase.</span></div></section><EventCalendar/></>}</main>
  <footer><span>Estrela da Sorte • Fundação 0.4</span><span>Economia: <b>simulação controlada</b></span></footer></div>}
 export default App;
