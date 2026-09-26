@@ -3,8 +3,10 @@ import { createRoot } from "react-dom/client";
 import "./styles.css";
 import App from "./App";
 import { initVConsole } from "./lib/vconsole";
+import { initOpenTelemetry } from "./lib/opentelemetry";
 
 initVConsole();
+initOpenTelemetry();
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
