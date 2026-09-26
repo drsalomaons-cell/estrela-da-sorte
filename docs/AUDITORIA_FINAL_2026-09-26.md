@@ -80,3 +80,67 @@ Agora existe interface ligada à tabela real, mas sem execução contra um proje
 O repositório está **mais fechado e auditável**, mas **não é correto declarar o aplicativo 100% testado ou pronto para produção**. O bloqueio restante é principalmente de execução externa: ambiente Node/build, projeto Supabase, LiveKit e dispositivos Android.
 
 A regra de status usada nesta auditoria é: **escrito ≠ compilado ≠ executado ≠ testado ≠ produção**.
+
+
+# RODADA 2 — CINCO ETAPAS CONCLUSIVAS
+
+## Etapa 1 — núcleo e QA automatizável
+- Criado `scripts/verify-repo.mjs`.
+- Adicionado `npm run verify`.
+- Adicionado `npm run ci` = verify + build.
+- CI passou a executar a verificação estática antes do build.
+- **Ainda falta:** execução comprovada do workflow.
+
+## Etapa 2 — catálogo e registro dos 20 slots
+- Criada migration `0033_seed_game_registry.sql`.
+- Os 20 slots existentes passam a ter registro no `game_registry`.
+- Permanecem como `planned`, `free_mode=true`, `coin_mode=false`, `monetization_mode=none`.
+- **Importante:** isso instala o catálogo no registry; não transforma nomes em jogos executáveis.
+
+## Etapa 3 — funções que podem ser ativadas sem infraestrutura externa
+- Calendário regional está ligado à tabela real.
+- Consulta de sala, ocupação de cadeira e chat continuam ligados às funções/realtime existentes.
+- Diagnóstico mobile continua disponível.
+- Indicadores da interface foram corrigidos para não afirmar que LiveKit, vídeo ou presentes estão funcionando sem prova.
+- **Status:** código integrado; execução externa ainda necessária.
+
+## Etapa 4 — gate de release
+- Criada migration `0034_release_qa_status.sql`.
+- O banco passa a ter um checklist explícito de evidências.
+- Estados pendentes não são convertidos artificialmente em aprovados.
+- **Status:** checklist criado.
+
+## Etapa 5 — auditoria de fechamento
+### O que está implementado no código
+- React/Vite/TypeScript.
+- Supabase client.
+- Sala e cadeiras.
+- Realtime de cadeiras.
+- Chat Realtime.
+- Calendário.
+- Diagnóstico/vConsole.
+- OpenTelemetry opcional.
+- Taxonomia de ranks.
+- Registry de 20 slots.
+- Lifecycle dos jogos.
+- Pipeline CI.
+- Verificação estática.
+
+### O que continua faltando para concluir de verdade
+1. Executar `npm install`, `npm run verify` e `npm run build` em ambiente Node.
+2. Aplicar todas as migrations em um projeto Supabase real e verificar erros SQL.
+3. Testar autenticação, perfil, sessão, logout, recuperação e RLS.
+4. Testar sala, cadeiras e Realtime com pelo menos dois clientes.
+5. Configurar servidor/token do LiveKit e testar voz real.
+6. Testar chat Realtime em múltiplos clientes.
+7. Validar vídeo apenas depois do fluxo LiveKit.
+8. Validar presentes somente como fluxo virtual permitido e sem mecânica de aposta/sorteio.
+9. Implementar e testar jogos não monetários; os 20 registros atuais são catálogo, não 20 jogos prontos.
+10. Gerar APK/AAB e instalar em aparelhos reais.
+11. Fazer teste de regressão após as migrations.
+12. Só então considerar release/produção.
+
+## Veredito técnico
+**Não há base para declarar 100% concluído ainda.** A parte que pode ser feita somente pelo repositório foi ampliada e auditada. O restante depende de execução real, credenciais/configuração e dispositivos.
+
+A auditoria agora distingue explicitamente **ativado no código**, **configurado**, **executado**, **testado** e **pronto para produção**.
