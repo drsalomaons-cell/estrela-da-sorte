@@ -5,14 +5,15 @@ import{getLiveRoom,getCurrentMemberId,claimSeat,leaveSeat,listActiveSeats,subscr
 import{sendRoomMessage,subscribeToRoomChat}from"./lib/chat";
 import{livekitConfigured}from"./lib/livekit";
 import{supabase}from"./lib/supabase";
+import{diagnosticSnapshot}from"./lib/diagnostics";
 
 const games=["Caçador / John Hunter","Trem / Train","Mr. Rich","Crazy Cream","Feijão","Ovo","Aviador / Foguete","Yumi","Zeus","Cleópatra","Ice","Ludo","Uno","Estrela Cósmica","Órbita Dourada","Lua Violeta","Nebulosa","Supernova","Cometa","Galáxia"];
 
 function App(){
  const[tab,setTab]=useState("sala"),[room,setRoom]=useState<RoomSession|null>(null),[seats,setSeats]=useState<any[]>([]),[memberId,setMemberId]=useState<string|null>(null),[chat,setChat]=useState<any[]>([]),[message,setMessage]=useState(""),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState("");
- const load=async()=>{setLoading(true);setError("");try{const live=await getLiveRoom();setRoom(live);if(live){setSeats(await listActiveSeats(live.id));setMemberId(await getCurrentMemberId())}else{setSeats([]);setMemberId(null)}}catch(e:any){setError(e?.message||"Não foi possível consultar a sala.")}finally{setLoading(false)}};
+ const load=async()=>{setLoading(true);setError("");try{const live=await getLiveRoom();setRoom(live);diagnosticSnapshot("Sala carregada", live);if(live){const activeSeats=await listActiveSeats(live.id);setSeats(activeSeats);diagnosticSnapshot("Participantes da sala", activeSeats);setMemberId(await getCurrentMemberId())}else{setSeats([]);setMemberId(null)}}catch(e:any){setError(e?.message||"Não foi possível consultar a sala.")}finally{setLoading(false)}};
  useEffect(()=>{void load()},[]);
- useEffect(()=>{if(!room||!supabase)return;const stopChat=subscribeToRoomChat(room.id,m=>setChat(v=>[...v,m]));const stopSeats=subscribeToRoomSeats(room.id,()=>{void listActiveSeats(room.id).then(setSeats).catch(e=>setError(e?.message||"Não foi possível atualizar as cadeiras."))});return()=>{stopChat();stopSeats()}},[room]);
+ useEffect(()=>{if(!room||!supabase)return;const stopChat=subscribeToRoomChat(room.id,m=>{diagnosticSnapshot("Mensagem de chat recebida", m);setChat(v=>[...v,m])});const stopSeats=subscribeToRoomSeats(room.id,()=>{void listActiveSeats(room.id).then(setSeats).catch(e=>setError(e?.message||"Não foi possível atualizar as cadeiras."))});return()=>{stopChat();stopSeats()}},[room]);
  useEffect(()=>{if(!supabase)return;const {data}=supabase.auth.onAuthStateChange(()=>{void getCurrentMemberId().then(setMemberId).catch(()=>setMemberId(null))});return()=>data.subscription.unsubscribe()},[]);
  const occupied=new Map(seats.map(s=>[Number(s.seat_no),s])),mySeat=useMemo(()=>seats.find(s=>s.member_id===memberId)?.seat_no??null,[seats,memberId]);
  const join=async()=>{if(!room||!memberId)return;setBusy(true);setError("");try{await claimSeat(room.id,memberId);await load()}catch(e:any){setError(e?.message||"Não foi possível ocupar a cadeira.")}finally{setBusy(false)}};
