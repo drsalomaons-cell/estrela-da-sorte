@@ -56,6 +56,30 @@ export async function listActiveSeats(roomId: string) {
   return data ?? [];
 }
 
+export function subscribeToRoomSeats(
+  roomId: string,
+  onChange: () => void,
+) {
+  if (!supabase) throw new Error("Supabase não configurado");
+  const channel = supabase
+    .channel(`room-seats:${roomId}`)
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "room_participants",
+        filter: `room_id=eq.${roomId}`,
+      },
+      () => onChange(),
+    )
+    .subscribe();
+
+  return () => {
+    void supabase.removeChannel(channel);
+  };
+}
+
 export async function getCurrentMemberId() {
   if (!supabase) throw new Error("Supabase não configurado");
   const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
