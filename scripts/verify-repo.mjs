@@ -11,6 +11,8 @@ const required = [
   "src/lib/livekit-token.ts",
   "src/lib/vconsole.ts",
   "src/lib/opentelemetry.ts",
+  "src/components/GameCenter.tsx",
+  "supabase/migrations/0037_social_games_catalog.sql",
   "supabase/functions/livekit-token/index.ts",
   "supabase/migrations/0036_call_sessions.sql",
   ".github/workflows/build.yml",
@@ -43,6 +45,7 @@ const checks = [
   ["áudio remoto", app.includes("TrackSubscribed")],
   ["token LiveKit no backend", edge.includes("LIVEKIT_API_SECRET") && edge.includes("AccessToken")],
   ["segurança do token", edge.includes("auth.getUser") && edge.includes("roomJoin: true")],
+  ["20 jogos sociais", app.includes("GameCenter") && app.includes("jogos jogáveis")],
 ];
 const failed = checks.filter(([, ok]) => !ok);
 if (failed.length) {
