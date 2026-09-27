@@ -1,7 +1,8 @@
 import React,{useEffect,useMemo,useRef,useState}from"react";
 import RoleHierarchy from"./components/RoleHierarchy";
+import GameCenter from"./components/GameCenter";
 import EventCalendar from"./components/EventCalendar";
-import{Gift,Gamepad2,Shield,Users,Settings,Mic,Video,MessageCircle,Star,Crown,ChevronRight,LogIn,LogOut,RefreshCw}from"lucide-react";
+import{Gift,Gamepad2,Shield,Users,Settings,Mic,Video,MessageCircle,Star,Crown,LogIn,LogOut,RefreshCw}from"lucide-react";
 import{getLiveRoom,getCurrentMemberId,claimSeat,leaveSeat,listActiveSeats,subscribeToRoomSeats,RoomSession}from"./lib/room";
 import{sendRoomMessage,subscribeToRoomChat}from"./lib/chat";
 import{livekitConfigured,createLiveKitRoom,connectLiveKitRoom,enableMicrophone,subscribeLiveKitState,LiveKitMediaState}from"./lib/livekit";
@@ -10,7 +11,7 @@ import{supabase}from"./lib/supabase";
 import{diagnosticSnapshot}from"./lib/diagnostics";
 import{Track,Room,RoomEvent}from"livekit-client";
 
-const games=["Caçador / John Hunter","Trem / Train","Mr. Rich","Crazy Cream","Feijão","Ovo","Aviador / Foguete","Yumi","Zeus","Cleópatra","Ice","Ludo","Uno","Estrela Cósmica","Órbita Dourada","Lua Violeta","Nebulosa","Supernova","Cometa","Galáxia"];
+
 
 function App(){
  const[tab,setTab]=useState("sala"),[room,setRoom]=useState<RoomSession|null>(null),[seats,setSeats]=useState<any[]>([]),[memberId,setMemberId]=useState<string|null>(null),[chat,setChat]=useState<any[]>([]),[message,setMessage]=useState(""),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState("");
@@ -37,7 +38,7 @@ function App(){
  {error&&<div className="notice"><Settings size={17}/><span>{error}</span></div>}{voiceError&&<div className="notice"><Mic size={17}/><span>{voiceError}</span></div>}
  {!loading&&room&&<section className="panel"><div className="panelTitle"><span><Crown size={18}/> Cadeirinhas</span><small>{seats.length}/{room.seats} ocupadas • máximo técnico 30</small></div><div className="roomActions">{memberId?(mySeat?<><button onClick={()=>void toggleMic()} disabled={voiceBusy||!livekitState?.connected}><Mic size={16}/>{livekitState?.microphoneEnabled?"Desligar microfone":"Ligar microfone"}</button><button onClick={()=>void leave()} disabled={busy}><LogOut size={16}/> Sair da cadeira {mySeat}</button></>:<button onClick={()=>void join()} disabled={busy}><LogIn size={16}/> Entrar na sala</button>):<span>Login e membro ativo são necessários para ocupar uma cadeira.</span>}{voiceBusy&&<span>Conectando voz…</span>}</div><div className="seats">{Array.from({length:room.seats},(_,i)=>i+1).map(n=>{const s=occupied.get(n);return <div className={"seat "+(s?"live":"")} key={n}><div className="avatar">{s?"★":"+"}</div><b>{s?("Membro "+String(s.member_id).slice(0,6)):("Cadeira "+n)}</b><span>{s?"ao vivo":"livre"}</span></div>})}</div></section>}
  {room?.chat_enabled&&<section className="panel chatPanel"><div className="panelTitle"><span><MessageCircle size={18}/> Chat da sala</span><small>Realtime</small></div><div className="chatList">{chat.slice(-30).map(m=><div className="chatMsg" key={String(m.id)}><b>{String(m.sender_user_id).slice(0,8)}</b><span>{String(m.body)}</span></div>)}</div><div className="chatInput"><input value={message} maxLength={1000} onChange={e=>setMessage(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")void send()}} placeholder={memberId?"Digite uma mensagem…":"Login necessário para enviar"}/><button onClick={()=>void send()} disabled={!memberId||!message.trim()}>Enviar</button></div></section>}</section>}
- {tab==="jogos"&&<section className="panel"><div className="panelTitle"><span><Gamepad2 size={18}/> Jogos da sala</span><small>{games.length} nomes no catálogo • estados reais devem vir do game_registry</small></div><div className="gamegrid">{games.map((g,i)=><button className="game" key={g}><div className="gameIcon">{["♞","🚆","♛","🍦","🌱","🥚","🚀","🪐","⚡","👑","❄","🎲","🃏"][i]}</div><b>{g}</b><span>Catálogo • implementação pendente <ChevronRight size={14}/></span></button>)}</div></section>}
+ {tab==="jogos"&&<GameCenter/>}
  {tab==="agencia"&&<section className="panel"><div className="panelTitle"><span><Users size={18}/> Agência & Hosts</span><small>estrutura preparada</small></div><div className="cards"><div className="card"><Star/><b>Agência</b><p>Equipe, convites, metas, resultados e hosts vinculados.</p></div><div className="card"><Mic/><b>Host</b><p>Entrada por convite, sala, metas e desempenho.</p></div><div className="card"><Crown/><b>BD</b><p>Acompanhamento de agências ativas e desempenho.</p></div></div></section>}
  {tab==="admin"&&<><section className="panel"><div className="panelTitle"><span><Shield size={18}/> Central ADM</span><small>controle por função</small></div><RoleHierarchy/><div className="notice"><Settings size={17}/><span>Permissões devem ser aplicadas no backend Supabase.</span></div></section><EventCalendar/></>}</main>
  <footer><span>Estrela da Sorte • Fundação 0.4</span><span>Economia: <b>simulação controlada</b></span></footer></div>}
