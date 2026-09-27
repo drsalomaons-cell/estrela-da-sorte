@@ -1,6 +1,7 @@
 name: Estrela da Sorte - Migration validation
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'supabase/migrations/**'
