@@ -1,0 +1,45 @@
+# ESTRELA DA SORTE — LICENÇA PROPRIETÁRIA
+
+Copyright (c) 2026 Salomão Nascimento.
+
+## 1. Titularidade
+
+Este repositório contém componentes originais desenvolvidos especificamente para o projeto ESTRELA DA SORTE. Na medida permitida pela legislação aplicável, os direitos autorais e demais direitos de propriedade intelectual sobre o código, arquitetura, documentação, textos, configurações, componentes e demais materiais originais criados para este projeto pertencem ao respectivo titular do projeto, identificado acima.
+
+## 2. Componentes de terceiros
+
+Este projeto também utiliza bibliotecas, frameworks, SDKs, serviços, código ou outros materiais de terceiros. Esses componentes NÃO são abrangidos por esta licença proprietária e continuam sujeitos às respectivas licenças e termos de seus titulares.
+
+Nenhuma disposição desta licença transfere ou altera direitos sobre software, marcas, imagens, fontes, APIs, SDKs ou outros materiais de terceiros.
+
+## 3. Uso por terceiros
+
+Salvo autorização expressa e escrita do titular, este projeto e seus componentes originais não são licenciados para:
+- redistribuição;
+- sublicenciamento;
+- venda ou revenda do código-fonte;
+- cópia substancial;
+- criação de produto derivado baseado nos componentes proprietários;
+- disponibilização pública do código proprietário.
+
+A autorização de uso comercial do aplicativo, quando concedida, deverá ser definida por instrumento contratual ou licença comercial específica.
+
+## 4. Licenças de software de terceiros
+
+Quando um arquivo, biblioteca ou componente estiver sujeito a uma licença de terceiros, essa licença prevalece para o respectivo componente. O usuário do projeto deve verificar e cumprir as obrigações dessas licenças.
+
+## 5. Marca e identidade
+
+O nome ESTRELA DA SORTE, sua identidade visual e outros elementos de marca somente poderão ser utilizados conforme autorização do respectivo titular e da legislação aplicável.
+
+## 6. Ausência de transferência automática
+
+O acesso ao repositório, a uma cópia do código ou a uma versão compilada do aplicativo não constitui, por si só, cessão ou transferência da propriedade intelectual do projeto.
+
+## 7. Observação jurídica
+
+Este arquivo registra a intenção de titularidade e as condições de uso do projeto. Contratos de desenvolvimento, cessão, licença comercial, distribuição ou transferência de propriedade intelectual podem estabelecer condições específicas e devem ser formalizados separadamente quando aplicável.
+
+---
+
+Para identificar corretamente cada componente de terceiros, consulte os arquivos de licença e os avisos correspondentes distribuídos com suas respectivas bibliotecas e SDKs.
