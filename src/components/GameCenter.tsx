@@ -1,4 +1,5 @@
 import React,{useMemo,useState}from"react";
+import {ChevronRight} from"lucide-react";
 
 type Game={key:string;name:string;description:string;category:string;emoji:string};
 export const SOCIAL_GAMES:Game[]=[
