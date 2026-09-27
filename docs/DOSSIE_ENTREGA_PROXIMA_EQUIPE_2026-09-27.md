@@ -376,3 +376,145 @@ Nenhuma equipe deve dizer que uma funcionalidade está funcionando somente porqu
 O status deve ser baseado em evidência de execução.
 
 **ESTRELA DA SORTE — estado de entrega: código avançado e documentado, aguardando execução real de build, infraestrutura e dispositivos para fechar o primeiro ciclo de testes.**
+
+
+---
+
+# 11. ORDEM FORMAL DE COMPLEMENTAÇÃO, TESTE E ENTREGA
+
+**Este documento deve ser tratado como ordem de execução técnica do próximo ciclo.**
+
+A equipe que receber o ESTRELA DA SORTE deve **complementar o que falta, testar antes de compilar para entrega, corrigir os erros encontrados e somente então gerar a primeira versão de teste**.
+
+Não considerar o projeto encerrado apenas porque existem arquivos, componentes, migrations ou registros no catálogo.
+
+## Ordem obrigatória
+
+### 1. Auditoria do estado atual
+Antes de alterar:
+- abrir o repositório atual;
+- conferir a branch `main`;
+- conferir as migrations existentes;
+- conferir componentes e serviços já criados;
+- preservar o que já funciona;
+- identificar duplicações;
+- não substituir funcionalidades existentes sem motivo técnico documentado.
+
+### 2. Completar as funcionalidades pendentes
+Implementar e integrar, de ponta a ponta, tudo que estiver marcado como pendente neste dossiê, incluindo:
+- autenticação;
+- perfil e sessão;
+- RLS e permissões;
+- salas;
+- presença e cadeiras;
+- chat;
+- voz;
+- reconexão;
+- calendário;
+- presentes dentro do escopo virtual permitido;
+- painel ADM;
+- ADM/BD/Agência/Host;
+- produção e histórico;
+- revenda dentro do modelo permitido;
+- relatórios;
+- auditoria;
+- diagnóstico;
+- vídeo, quando tecnicamente habilitado;
+- Centro de Jogos;
+- os 20 jogos sociais já registrados;
+- empacotamento Android.
+
+### 3. Completar os 20 jogos sociais
+Cada jogo deve:
+1. abrir sem quebrar a aplicação;
+2. permitir a interação prevista;
+3. possuir estado inicial e encerramento coerentes;
+4. funcionar em tela pequena;
+5. não gerar erro crítico de console;
+6. ser testado individualmente;
+7. ser testado novamente depois das alterações gerais.
+
+O status só poderá mudar para `tested` depois de execução real e registro do resultado.
+
+### 4. Testar antes da compilação de entrega
+O ciclo deve ser:
+
+`instalar dependências → verificar código → testar funcionalidades → corrigir → verificar novamente → compilar → instalar APK → testar no aparelho → corrigir → recompilar`
+
+A primeira compilação não deve ser tratada como aprovação. Ela é o primeiro artefato de teste.
+
+### 5. Teste real de infraestrutura
+Validar, com ambiente configurado:
+- Supabase;
+- migrations;
+- Auth;
+- RLS;
+- Realtime;
+- Edge Functions;
+- LiveKit;
+- banco;
+- sessões de chamada;
+- chat;
+- salas;
+- jogos;
+- logs e tratamento de erros.
+
+### 6. Primeiro APK
+Depois de a versão web/backend estar consistente:
+- gerar APK;
+- instalar em aparelho Android real;
+- executar o fluxo completo;
+- testar áudio;
+- testar sala;
+- testar chat;
+- testar os 20 jogos;
+- testar reconexão;
+- registrar problemas;
+- corrigir;
+- gerar novo APK;
+- repetir os testes.
+
+### 7. Critério de conclusão
+Uma funcionalidade somente será considerada concluída quando houver evidência correspondente:
+
+**código → compilação → execução → teste → resultado registrado.**
+
+Se qualquer etapa estiver faltando, o item continua pendente.
+
+---
+
+# 12. ITENS SUJEITOS A REQUISITOS LEGAIS, REGULATÓRIOS OU DE FORNECEDORES
+
+A próxima equipe deve manter separados os recursos de entretenimento/social dos recursos que possam envolver apostas, prêmio financeiro, pagamento, saque, conversão monetária ou operação de jogos de aposta.
+
+O repositório atual **não deve declarar esses mecanismos como implementados**.
+
+Caso a equipe de destino tenha um escopo adicional juridicamente autorizado, esse escopo deve ser tratado em projeto separado, com validação jurídica, regulatória, técnica, de fornecedor, publicação e proteção de usuários antes de qualquer operação.
+
+Este dossiê não autoriza nem implementa mecanismos de aposta, banca, odds, prêmio financeiro ou conversão de créditos em dinheiro.
+
+---
+
+# 13. PEDIDO DE ENTREGA À PRÓXIMA EQUIPE
+
+**Pedido:** receber o repositório atual, complementar tudo que estiver pendente neste dossiê, testar cada módulo antes da compilação de entrega, corrigir todos os erros encontrados, gerar a primeira compilação, instalar a versão de teste em aparelhos reais e executar a regressão completa.
+
+A equipe deve devolver um relatório objetivo contendo:
+
+- o que foi implementado;
+- o que foi compilado;
+- o que foi executado;
+- o que foi testado;
+- quais testes passaram;
+- quais testes falharam;
+- quais correções foram realizadas;
+- quais itens continuam pendentes;
+- qual versão/commit corresponde ao APK entregue.
+
+**Não utilizar “pronto” quando o item estiver somente escrito ou integrado.**
+
+**Não utilizar “testado” sem execução real.**
+
+**Não utilizar “aprovado” sem evidência de teste.**
+
+**Objetivo imediato: transformar o estado atual do ESTRELA DA SORTE em uma primeira versão compilada, instalada e testada, mantendo rastreabilidade de tudo que foi feito.**
