@@ -13,14 +13,31 @@ on:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Install Supabase CLI
         uses: supabase/setup-cli@v1
         with:
           version: latest
+
       - name: Check migration files
         run: |
           test -d supabase/migrations
           ls -1 supabase/migrations
-          echo "Static migration inventory completed. Remote execution requires Supabase credentials."
+          echo "Static migration inventory completed."
+
+      - name: Test Supabase authentication and project access
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN"
+          test -n "$SUPABASE_PROJECT_ID"
+          response="$(curl -fsS \
+            -H "Authorization: Bearer $SUPABASE_ACCESS_TOKEN" \
+            "https://api.supabase.com/v1/projects/$SUPABASE_PROJECT_ID/database/migrations")"
+          echo "Supabase Management API authentication: OK"
+          echo "Target project: $SUPABASE_PROJECT_ID"
+          echo "Migration history endpoint: OK"
+          echo "$response" | python -c 'import json,sys; data=json.load(sys.stdin); print("Remote migrations returned:", len(data))'
