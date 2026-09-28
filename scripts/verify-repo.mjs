@@ -5,7 +5,7 @@ import path from "node:path";
 const required = [
   "package.json","src/App.tsx","src/lib/supabase.ts","src/lib/room.ts","src/lib/chat.ts",
   "src/lib/livekit.ts","src/lib/livekit-token.ts","src/lib/vconsole.ts","src/lib/opentelemetry.ts",
-  "src/components/GameCenter.tsx","supabase/migrations/0037_social_games_catalog.sql",
+  "src/components/GameCenter.tsx","src/components/SlotCenter.tsx","src/lib/gameplay.ts","supabase/migrations/0042_virtual_games_engine.sql","supabase/migrations/0037_social_games_catalog.sql",
   "supabase/migrations/0038_functional_signup_and_test_room.sql","src/lib/auth.ts","src/lib/gifts.ts",
   "supabase/functions/livekit-token/index.ts","supabase/migrations/0036_call_sessions.sql",".github/workflows/build.yml",
 ];
@@ -18,6 +18,9 @@ for(const dep of ["react","react-dom","vite","@supabase/supabase-js","livekit-cl
 const app=fs.readFileSync("src/App.tsx","utf8");
 const gameCenter=fs.readFileSync("src/components/GameCenter.tsx","utf8");
 const edge=fs.readFileSync("supabase/functions/livekit-token/index.ts","utf8");
+const slots=fs.readFileSync("src/components/SlotCenter.tsx","utf8");
+const gameplay=fs.readFileSync("src/lib/gameplay.ts","utf8");
+const gameEngine=fs.readFileSync("supabase/migrations/0042_virtual_games_engine.sql","utf8");
 const signup=fs.readFileSync("supabase/migrations/0038_functional_signup_and_test_room.sql","utf8");
 const checks=[
 ["EventCalendar",app.includes("EventCalendar")],["room realtime",app.includes("subscribeToRoomSeats")],
@@ -26,7 +29,7 @@ const checks=[
 ["microfone",app.includes("enableMicrophone")],["áudio remoto",app.includes("TrackSubscribed")],
 ["LiveKit backend",edge.includes("LIVEKIT_API_SECRET")&&edge.includes("AccessToken")],
 ["token auth",edge.includes("auth.getUser")&&edge.includes("roomJoin: true")],
-["20 jogos",gameCenter.includes("SOCIAL_GAMES")&&gameCenter.includes("jogos jogáveis")&&(gameCenter.match(/key:/g)||[]).length>=20],
+["20 jogos",gameCenter.includes("SOCIAL_GAMES")&&(gameCenter.match(/key:/g)||[]).length>=20],["20 slots",slots.includes("SLOTS")&&(slots.match(/STAR_/g)||[]).length>=20],["foguete",slots.includes("STAR_14")&&slots.includes("Subir foguete")],["jogos com créditos",gameCenter.includes("Com créditos")&&gameplay.includes("playVirtualRoomGame")],["motor virtual",gameEngine.includes("play_virtual_slot")&&gameEngine.includes("play_virtual_room_game")],
 ["cadastro",app.includes("signUp")&&app.includes("signIn")],["modo teste",app.includes("MODO TESTE LOCAL")&&app.includes("demo-room")],
 ["presentes",app.includes("transferVirtualGift")&&app.includes("Presentes virtuais")],["vídeo",app.includes("enableCamera")],
 ["trigger cadastro",signup.includes("create trigger on_auth_user_created_estreladasorte")],
