@@ -1,0 +1,102 @@
+name: Supabase - aplicar banco funcional com segurança
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/**'
+      - 'supabase/functions/**'
+      - '.github/workflows/supabase-bootstrap.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validar credenciais
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN"
+          test -n "$SUPABASE_PROJECT_ID"
+
+      - name: Verificar estado remoto antes de alterar
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          ref=os.environ["SUPABASE_PROJECT_ID"]
+          token=os.environ["SUPABASE_ACCESS_TOKEN"]
+          url=f"https://api.supabase.com/v1/projects/{ref}/database/query"
+          payload=json.dumps({"query":"select count(*)::int as public_tables from information_schema.tables where table_schema='public' and table_type='BASE TABLE' and table_name not in ('schema_migrations');","read_only":True}).encode()
+          req=urllib.request.Request(url,data=payload,headers={"Authorization":f"Bearer {token}","Content-Type":"application/json"},method="POST")
+          with urllib.request.urlopen(req) as r:
+            data=json.load(r)
+          rows=data.get("result",data)
+          print(rows)
+          count=int(rows[0]["public_tables"]) if isinstance(rows,list) and rows else 0
+          if count != 0:
+            raise SystemExit(f"ABORTADO: o projeto remoto já possui {count} tabelas públicas. Nenhuma migration foi aplicada.")
+          PY
+
+      - name: Preparar histórico de migrations
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          ref=os.environ["SUPABASE_PROJECT_ID"]; token=os.environ["SUPABASE_ACCESS_TOKEN"]
+          sql="""create schema if not exists supabase_migrations;
+          create table if not exists supabase_migrations.schema_migrations(version text not null primary key);
+          alter table supabase_migrations.schema_migrations add column if not exists statements text[];
+          alter table supabase_migrations.schema_migrations add column if not exists name text;"""
+          url=f"https://api.supabase.com/v1/projects/{ref}/database/query"
+          req=urllib.request.Request(url,data=json.dumps({"query":sql,"read_only":False}).encode(),headers={"Authorization":f"Bearer {token}","Content-Type":"application/json"},method="POST")
+          with urllib.request.urlopen(req) as r: print(r.read().decode())
+          PY
+
+      - name: Aplicar migrations em ordem
+        run: |
+          python - <<'PY'
+          import json, os, pathlib, urllib.request
+          ref=os.environ["SUPABASE_PROJECT_ID"]; token=os.environ["SUPABASE_ACCESS_TOKEN"]
+          url=f"https://api.supabase.com/v1/projects/{ref}/database/query"
+          files=sorted(pathlib.Path("supabase/migrations").glob("*.sql"))
+          for path in files:
+            version=path.name.split("_",1)[0]
+            name=path.stem
+            check=f"select 1 from supabase_migrations.schema_migrations where version='{version}' limit 1;"
+            req=urllib.request.Request(url,data=json.dumps({"query":check,"read_only":True}).encode(),headers={"Authorization":f"Bearer {token}","Content-Type":"application/json"},method="POST")
+            with urllib.request.urlopen(req) as r: data=json.load(r)
+            result=data.get("result",data)
+            if isinstance(result,list) and result:
+              print(f"SKIP {path.name}")
+              continue
+            sql=path.read_text(encoding="utf-8")
+            print(f"APPLY {path.name}")
+            req=urllib.request.Request(url,data=json.dumps({"query":sql,"read_only":False}).encode(),headers={"Authorization":f"Bearer {token}","Content-Type":"application/json"},method="POST")
+            with urllib.request.urlopen(req) as r: r.read()
+            mark=f"insert into supabase_migrations.schema_migrations(version,name) values('{version}','{name}') on conflict(version) do update set name=excluded.name;"
+            req=urllib.request.Request(url,data=json.dumps({"query":mark,"read_only":False}).encode(),headers={"Authorization":f"Bearer {token}","Content-Type":"application/json"},method="POST")
+            with urllib.request.urlopen(req) as r: r.read()
+          print("MIGRATIONS: OK")
+          PY
+
+      - name: Deploy Edge Functions
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Publicar Edge Functions
+        run: supabase functions deploy livekit-token --project-ref "$SUPABASE_PROJECT_ID"
+
+      - name: Confirmar histórico
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          ref=os.environ["SUPABASE_PROJECT_ID"]; token=os.environ["SUPABASE_ACCESS_TOKEN"]
+          url=f"https://api.supabase.com/v1/projects/{ref}/database/query"
+          sql="select count(*)::int as migrations from supabase_migrations.schema_migrations;"
+          req=urllib.request.Request(url,data=json.dumps({"query":sql,"read_only":True}).encode(),headers={"Authorization":f"Bearer {token}","Content-Type":"application/json"},method="POST")
+          with urllib.request.urlopen(req) as r: print(r.read().decode())
+          PY
