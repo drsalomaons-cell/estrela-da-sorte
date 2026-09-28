@@ -1,12 +1,8 @@
 name: Supabase - aplicar banco funcional com segurança
 
+# Execução manual até que a conexão Supabase permita database:write ou forneça SUPABASE_DB_PASSWORD.
+
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'supabase/migrations/**'
-      - 'supabase/functions/**'
-      - '.github/workflows/supabase-bootstrap.yml'
   workflow_dispatch:
 
 jobs:
