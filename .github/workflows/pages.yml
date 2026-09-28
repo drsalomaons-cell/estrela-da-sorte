@@ -1,4 +1,4 @@
-name: Deploy Estrela da Sorte para GitHub Pages
+name: Build pacote web Estrela da Sorte
 
 on:
   push:
@@ -7,19 +7,14 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: pages
+  group: web-package
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  web-package:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,14 +26,8 @@ jobs:
         run: npm install
       - name: Build
         run: npm run build
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
+      - name: Upload web package
+        uses: actions/upload-artifact@v4
         with:
-          enablement: true
-      - name: Upload
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist
-      - name: Deploy
-        id: deployment
-        uses: actions/deploy-pages@v4
+          name: estrela-da-sorte-web
+          path: dist/
