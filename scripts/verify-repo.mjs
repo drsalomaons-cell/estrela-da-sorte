@@ -33,6 +33,7 @@ for (const dep of ["react","react-dom","vite","@supabase/supabase-js","livekit-c
 }
 
 const app = fs.readFileSync("src/App.tsx", "utf8");
+const gameCenter = fs.readFileSync("src/components/GameCenter.tsx", "utf8");
 const edge = fs.readFileSync("supabase/functions/livekit-token/index.ts", "utf8");
 const checks = [
   ["EventCalendar integrado", app.includes("EventCalendar")],
@@ -45,7 +46,7 @@ const checks = [
   ["áudio remoto", app.includes("TrackSubscribed")],
   ["token LiveKit no backend", edge.includes("LIVEKIT_API_SECRET") && edge.includes("AccessToken")],
   ["segurança do token", edge.includes("auth.getUser") && edge.includes("roomJoin: true")],
-  ["20 jogos sociais", app.includes("GameCenter") && app.includes("jogos jogáveis")],
+  ["20 jogos sociais", gameCenter.includes("SOCIAL_GAMES") && gameCenter.includes("jogos jogáveis") && (gameCenter.match(/key:/g) || []).length >= 20],
 ];
 const failed = checks.filter(([, ok]) => !ok);
 if (failed.length) {
