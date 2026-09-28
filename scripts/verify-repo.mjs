@@ -38,6 +38,7 @@ for (const dep of ["react","react-dom","vite","@supabase/supabase-js","livekit-c
 const app = fs.readFileSync("src/App.tsx", "utf8");
 const gameCenter = fs.readFileSync("src/components/GameCenter.tsx", "utf8");
 const edge = fs.readFileSync("supabase/functions/livekit-token/index.ts", "utf8");
+const signupMigration = fs.readFileSync("supabase/migrations/0038_functional_signup_and_test_room.sql", "utf8");
 const checks = [
   ["EventCalendar integrado", app.includes("EventCalendar")],
   ["room realtime", app.includes("subscribeToRoomSeats")],
@@ -54,7 +55,13 @@ const checks = [
   ["modo teste local", app.includes("MODO TESTE LOCAL") && app.includes("demo-room")],
   ["presentes", app.includes("transferVirtualGift") && app.includes("Presentes virtuais")],
   ["vídeo", app.includes("enableCamera")],
+  ["trigger de cadastro", signupMigration.includes("create trigger on_auth_user_created_estreladasorte")],
+  ["perfil automático", signupMigration.includes("insert into public.user_profiles")],
+  ["carteira inicial", signupMigration.includes("insert into public.user_wallets") && signupMigration.includes("welcome_credits")],
+  ["membro USER automático", signupMigration.includes("role_code,display_name,status,metadata") && signupMigration.includes("'USER'")],
+  ["sala principal 30 lugares", signupMigration.includes("'sala-principal'") && signupMigration.includes("30,true,true")],
 ];
+
 const failed = checks.filter(([, ok]) => !ok);
 if (failed.length) {
   console.error("Verificações falharam:", failed.map(([name]) => name).join(", "));
