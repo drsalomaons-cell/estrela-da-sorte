@@ -13,6 +13,9 @@ const required = [
   "src/lib/opentelemetry.ts",
   "src/components/GameCenter.tsx",
   "supabase/migrations/0037_social_games_catalog.sql",
+  "supabase/migrations/0038_functional_signup_and_test_room.sql",
+  "src/lib/auth.ts",
+  "src/lib/gifts.ts",
   "supabase/functions/livekit-token/index.ts",
   "supabase/migrations/0036_call_sessions.sql",
   ".github/workflows/build.yml",
@@ -47,6 +50,10 @@ const checks = [
   ["token LiveKit no backend", edge.includes("LIVEKIT_API_SECRET") && edge.includes("AccessToken")],
   ["segurança do token", edge.includes("auth.getUser") && edge.includes("roomJoin: true")],
   ["20 jogos sociais", gameCenter.includes("SOCIAL_GAMES") && gameCenter.includes("jogos jogáveis") && (gameCenter.match(/key:/g) || []).length >= 20],
+  ["cadastro", app.includes("signUp") && app.includes("signIn")],
+  ["modo teste local", app.includes("MODO TESTE LOCAL") && app.includes("demo-room")],
+  ["presentes", app.includes("transferVirtualGift") && app.includes("Presentes virtuais")],
+  ["vídeo", app.includes("enableCamera")],
 ];
 const failed = checks.filter(([, ok]) => !ok);
 if (failed.length) {
