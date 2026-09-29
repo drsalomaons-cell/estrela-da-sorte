@@ -1,6 +1,7 @@
 import React,{useState}from"react";
 import {ChevronRight,Coins,Gamepad2,RefreshCw}from"lucide-react";
-import {playVirtualRoomGame}from"../lib/gameplay";\nimport {useI18n,SOCIAL_NAMES}from"../lib/i18n";
+import {playVirtualRoomGame}from"../lib/gameplay";
+import {useI18n,SOCIAL_NAMES}from"../lib/i18n";
 
 type Game={key:string;name:string;description:string;category:string;emoji:string};
 export const SOCIAL_GAMES:Game[]=[
