@@ -4,12 +4,13 @@ import "./styles.css";
 import App from "./App";
 import { initVConsole } from "./lib/vconsole";
 import { initOpenTelemetry } from "./lib/opentelemetry";
+import { I18nProvider } from "./lib/i18n";
 
 initVConsole();
 initOpenTelemetry();
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <App />
+    <I18nProvider><App /></I18nProvider>
   </React.StrictMode>,
 );
