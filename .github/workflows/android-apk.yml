@@ -18,6 +18,20 @@ jobs:
       - run: npm install
       - run: npm run ci
       - run: npx cap add android
+      - name: Set Android app label and launcher icon
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('android/app/src/main/AndroidManifest.xml')
+          s=p.read_text()
+          s=s.replace('android:label="@string/app_name"','android:label="Estrela da Sorte"')
+          p.write_text(s)
+          PY
+          mkdir -p android/app/src/main/res/drawable
+          curl -L --fail https://raw.githubusercontent.com/drsalomaons-cell/estrela-da-sorte/main/public/icon.svg -o android/app/src/main/res/drawable/ic_launcher_foreground.svg
+          cat > android/app/src/main/res/values/strings.xml <<'EOF'
+          <resources><string name="app_name">Estrela da Sorte</string><string name="title_activity_main">Estrela da Sorte</string></resources>
+          EOF
       - run: npx cap sync android
       - uses: actions/setup-java@v4
         with:
