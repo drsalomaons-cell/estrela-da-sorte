@@ -52,7 +52,7 @@ const checks=[
   ["i18n 3 idiomas",
     i18n.includes('export type Language="en"|"pt"|"es"') &&
     i18n.includes(" en:{") && i18n.includes(" pt:{") && i18n.includes(" es:{") &&
-    i18n.includes("English") && i18n.includes("Português") && i18n.includes("Español")],
+    i18n.includes("Cosmic Star") && i18n.includes("Estrela Cósmica") && i18n.includes("Estrella Cósmica")],
   ["seletor de idioma",app.includes("languagePicker")&&app.includes("setLanguage")],
   ["tradução de chat",app.includes("translateMessage")&&app.includes("translateBtn")&&translator.includes("translateText")],
   ["trigger cadastro",signup.includes("create trigger on_auth_user_created_estreladasorte")],
