@@ -1,24 +1,37 @@
-import {supabase} from "./supabase";
+import { supabase } from "./supabase";
 
-export async function signIn(email:string,password:string){
-  if(!supabase) throw new Error("Supabase não configurado");
-  const {data,error}=await supabase.auth.signInWithPassword({email,password});
-  if(error) throw error;
+export async function signIn(email: string, password: string) {
+  if (!supabase) throw new Error("Supabase não configurado");
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw error;
   return data;
 }
 
-export async function signUp(email:string,password:string,displayName:string){
-  if(!supabase) throw new Error("Supabase não configurado");
-  const {data,error}=await supabase.auth.signUp({
-    email,password,
-    options:{data:{display_name:displayName}}
+export async function signUp(email: string, password: string, displayName: string) {
+  if (!supabase) throw new Error("Supabase não configurado");
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: { data: { display_name: displayName } },
   });
-  if(error) throw error;
+  if (error) throw error;
   return data;
 }
 
-export async function signOut(){
-  if(!supabase) return;
-  const {error}=await supabase.auth.signOut();
-  if(error) throw error;
+export async function signOut() {
+  if (!supabase) return;
+  const { error } = await supabase.auth.signOut();
+  if (error) throw error;
+}
+
+export async function signInWithProvider(provider: "google" | "facebook") {
+  if (!supabase) throw new Error("Supabase não configurado");
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider,
+    options: {
+      redirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+    },
+  });
+  if (error) throw error;
+  return data;
 }
