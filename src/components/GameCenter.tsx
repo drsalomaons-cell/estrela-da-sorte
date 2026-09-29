@@ -44,7 +44,8 @@ function SimpleGame({game,mode,wager,roomId,onResult}:{game:Game;mode:"free"|"vi
  </div>;
 }
 
-export default function GameCenter({roomId,walletBalance,onWalletChange}:{roomId:string|null;walletBalance:number;onWalletChange:(n:number)=>void}){\n const{language,t}=useI18n();
+export default function GameCenter({roomId,walletBalance,onWalletChange}:{roomId:string|null;walletBalance:number;onWalletChange:(n:number)=>void}){
+ const{language,t}=useI18n();
  const [selected,setSelected]=useState<Game|null>(null); const [mode,setMode]=useState<"free"|"virtual">("free"); const [wager,setWager]=useState(100); const [last,setLast]=useState("");
  const chooseResult=(balance:number,payout:number,success:boolean)=>{onWalletChange(balance);setLast(success?"Vitória":"Derrota");};
  if(selected)return <section className="panel"><div className="panelTitle"><span><Gamepad2 size={18}/> {selected.name}</span><small>{t("games.balance")} {walletBalance.toLocaleString(language==="en"?"en-US":language==="es"?"es-ES":"pt-BR")} • {mode==="free"?t("games.free"):t("games.virtual")}</small></div><button onClick={()=>setSelected(null)}>{t("games.back")}</button><div className="slotControls"><button className={mode==="free"?"active":""} onClick={()=>setMode("free")}><RefreshCw size={15}/> {t("games.free")}</button><button className={mode==="virtual"?"active":""} onClick={()=>setMode("virtual")}><Coins size={15}/> {t("games.virtual")}</button></div>{mode==="virtual"&&<div className="slotBet"><span>{t("games.wager")}</span><select value={wager} onChange={e=>setWager(Number(e.target.value))}>{wagers.map(v=><option key={v} value={v}>{v.toLocaleString("pt-BR")} créditos</option>)}</select></div>}<SimpleGame game={selected} mode={mode} wager={wager} roomId={roomId} onResult={chooseResult}/>{last&&<div className="gameResult">Última rodada: {last}</div>}</section>;
