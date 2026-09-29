@@ -29,7 +29,8 @@ export const SLOTS:Slot[]=[
 const symbols=["⭐","💎","👑","🌙","☄️","🚀","🌌","7️⃣"];
 const wagers=[10,50,100,500,1000,5000];
 
-export default function SlotCenter({roomId,walletBalance,onWalletChange}:{roomId:string|null;walletBalance:number;onWalletChange:(n:number)=>void}){\n const{language,t}=useI18n();
+export default function SlotCenter({roomId,walletBalance,onWalletChange}:{roomId:string|null;walletBalance:number;onWalletChange:(n:number)=>void}){
+ const{language,t}=useI18n();
  const [selected,setSelected]=useState<Slot|null>(null);
  const [mode,setMode]=useState<"free"|"virtual">("free");
  const [wager,setWager]=useState(100);
