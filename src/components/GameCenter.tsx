@@ -29,7 +29,7 @@ export const SOCIAL_GAMES:Game[]=[
 const wagers=[10,50,100,500,1000,5000];
 
 function SimpleGame({game,mode,wager,roomId,onResult}:{game:Game;mode:"free"|"virtual";wager:number;roomId:string|null;onResult:(balance:number,payout:number,success:boolean)=>void}){
- const [score,setScore]=useState(0); const [msg,setMsg]=useState("Pronto para jogar.");
+ const {language}=useI18n(); const [score,setScore]=useState(0); const [msg,setMsg]=useState("Pronto para jogar.");
  const finish=async(success:boolean)=>{
    if(mode==="free"){if(success){setScore(s=>s+1);setMsg("Acertou! Rodada grátis.");}else setMsg("Tentativa registrada.");return;}
    try{const r=await playVirtualRoomGame(game.key,wager,success,roomId);onResult(Number(r.balance),Number(r.payout),success);setScore(s=>s+(success?1:0));setMsg(success?"🏆 Vitória: +"+r.payout+" créditos":"Rodada perdida: -"+r.wager+" créditos");}
