@@ -51,7 +51,7 @@ const checks=[
   ["vídeo",app.includes("enableCamera")],
   ["i18n 3 idiomas",
     i18n.includes('export type Language="en"|"pt"|"es"') &&
-    i18n.includes("en:{") && i18n.includes("pt:{") && i18n.includes("es:{") &&
+    i18n.includes(" en:{") && i18n.includes(" pt:{") && i18n.includes(" es:{") &&
     i18n.includes("English") && i18n.includes("Português") && i18n.includes("Español")],
   ["seletor de idioma",app.includes("languagePicker")&&app.includes("setLanguage")],
   ["tradução de chat",app.includes("translateMessage")&&app.includes("translateBtn")&&translator.includes("translateText")],
