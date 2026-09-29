@@ -22,7 +22,7 @@ function App(){
  const{language,setLanguage,t}=useI18n();
  const[translated,setTranslated]=useState<Record<string,string>>({});
  const[translating,setTranslating]=useState<string|null>(null);
- const translateMessage=async(id:string,body:string)=>{setTranslating(id);try{setTranslated(v=>({...v,[id]:await translateText(body,language)}))}catch(e:any){setError(e?.message||"Translation unavailable");}finally{setTranslating(null)}};
+ const translateMessage=async(id:string,body:string)=>{setTranslating(id);try{const translatedText=await translateText(body,language);setTranslated(v=>({...v,[id]:translatedText}))}catch(e:any){setError(e?.message||"Translation unavailable");}finally{setTranslating(null)}};
  const[tab,setTab]=useState("sala"),[room,setRoom]=useState<RoomSession|null>(null),[seats,setSeats]=useState<any[]>([]),[memberId,setMemberId]=useState<string|null>(null),[chat,setChat]=useState<any[]>([]),[message,setMessage]=useState(""),[loading,setLoading]=useState(true),[busy,setBusy]=useState(false),[error,setError]=useState("");
  const[authMode,setAuthMode]=useState<"login"|"signup">("login"),[email,setEmail]=useState(""),[password,setPassword]=useState(""),[displayName,setDisplayName]=useState(""),[authBusy,setAuthBusy]=useState(false),[userEmail,setUserEmail]=useState<string|null>(null);
  const[gifts,setGifts]=useState<any[]>([]),[walletBalance,setWalletBalance]=useState(0),[giftOpen,setGiftOpen]=useState(false),[giftBusy,setGiftBusy]=useState(false);
