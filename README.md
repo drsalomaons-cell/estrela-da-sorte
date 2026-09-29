@@ -36,3 +36,6 @@ A economia 50/50 permanece em auditoria e não é alterada por esta fundação.
 ## Regra de propriedade intelectual
 
 Nenhum componente de terceiros será tratado como criação exclusiva do ESTRELA DA SORTE. A titularidade do projeto aplica-se somente aos materiais sobre os quais o titular tenha direitos para conceder a respectiva licença.
+
+
+<!-- CI final verification checkpoint 2026-09-29 -->
