@@ -1,5 +1,26 @@
 import { supabase } from "./supabase";
 
+function getOAuthRedirectTo(): string {
+  if (typeof window === "undefined") {
+    return "https://fjkhdokdwvpyidgunoes.supabase.co";
+  }
+
+  const origin = window.location.origin;
+  const href = window.location.href;
+
+  // Capacitor Android / iOS WebView
+  if (
+    origin.startsWith("capacitor://") ||
+    origin.startsWith("http://localhost") ||
+    origin.startsWith("https://localhost") ||
+    href.startsWith("file://")
+  ) {
+    return "com.estreladasorte.app://auth/callback";
+  }
+
+  return origin;
+}
+
 export async function signIn(email: string, password: string) {
   if (!supabase) throw new Error("Supabase não configurado");
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -26,10 +47,12 @@ export async function signOut() {
 
 export async function signInWithProvider(provider: "google" | "facebook") {
   if (!supabase) throw new Error("Supabase não configurado");
+  const redirectTo = getOAuthRedirectTo();
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,
     options: {
-      redirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+      redirectTo,
+      skipBrowserRedirect: false,
     },
   });
   if (error) throw error;
