@@ -242,7 +242,7 @@ function App() {
     };
   }, [room, memberId, mySeat, livekitConfigured]);
 
-  const join = async () => {
+  const join = async (seatNo?: number) => {
     if (!room || !memberId) return;
     setBusy(true);
     setError("");
@@ -255,7 +255,7 @@ function App() {
         );
         return;
       }
-      await claimSeat(room.id, memberId);
+      await claimSeat(room.id, memberId, seatNo);
       await load();
     } catch (e: any) {
       setError(e?.message || "Não foi possível ocupar a cadeira.");
@@ -673,7 +673,7 @@ function App() {
                         </button>
                       </>
                     ) : (
-                      <button onClick={() => void join()} disabled={busy}>
+                      <button onClick={() => void join(n)} disabled={busy}>
                         <LogIn size={16} /> {t("room.join")}
                       </button>
                     )
