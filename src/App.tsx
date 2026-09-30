@@ -687,9 +687,43 @@ function App() {
                     const s = occupied.get(n);
                     return (
                       <div className={"seat " + (s ? "live" : "")} key={n}>
-                        <div className="avatar">{s ? "★" : "+"}</div>
-                        <b>{s ? "Membro " + String(s.member_id).slice(0, 6) : "Cadeira " + n}</b>
-                        <span>{s ? t("room.occupied") : t("room.free")}</span>
+                        {s ? (
+                          <>
+                            <div className="avatar">
+                              {s.avatar_url ? (
+                                <img src={s.avatar_url} alt={s.display_name || "Usuário"} />
+                              ) : (
+                                <span className="avatarFallback">★</span>
+                              )}
+                            </div>
+                            <b>{s.display_name || "Usuário"}</b>
+                            <span>{mySeat === n ? t("room.occupied") + " • você" : t("room.occupied")}</span>
+                            {mySeat === n && (
+                              <button
+                                className="seatLeaveBtn"
+                                type="button"
+                                onClick={() => void leave()}
+                                disabled={busy}
+                              >
+                                <LogOut size={13} /> {t("room.leave")}
+                              </button>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              className="seatJoinBtn"
+                              type="button"
+                              onClick={() => void join()}
+                              disabled={busy || !memberId || mySeat !== null}
+                              aria-label={"Ocupar cadeira " + n}
+                            >
+                              +
+                            </button>
+                            <b>Cadeira {n}</b>
+                            <span>{t("room.free")}</span>
+                          </>
+                        )}
                       </div>
                     );
                   })}
