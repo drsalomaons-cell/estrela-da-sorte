@@ -742,3 +742,15 @@ footer b { color: #d3af58; }
   display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700;
 }
 .seat.live b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+
+/* ===== RESPONSIVE ROOM / VIDEO ===== */
+.videoPanel { margin-top: 14px; }
+.localVideo { width: 100%; max-height: 360px; aspect-ratio: 16 / 9; object-fit: cover; background: #050716; border: 1px solid #34385e; border-radius: 14px; display: block; margin-bottom: 10px; }
+.videoPanel > button { border: 1px solid #4a4f7c; background: #171b3a; color: #fff; border-radius: 9px; padding: 8px 11px; font-weight: 600; }
+.seats { grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); }
+.seat { min-height: 86px; padding: 7px; }
+.seat .avatar { width: 36px; height: 36px; margin-bottom: 4px; }
+.seatJoinBtn { width: 38px; height: 38px; font-size: 23px; }
+@media (max-width: 700px) { .seats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; } .seat { min-height: 78px; padding: 6px 4px; } .seat .avatar { width: 32px; height: 32px; } .seatJoinBtn { width: 34px; height: 34px; font-size: 21px; } .seatLeaveBtn { padding: 4px 6px; } }
+@media (max-width: 420px) { .seats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; } .seat b { font-size: 9px; } .seat span { font-size: 8px; } }
