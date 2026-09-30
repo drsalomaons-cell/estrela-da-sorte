@@ -35,11 +35,12 @@ export async function getLiveRoom(roomKey?: string): Promise<RoomSession | null>
   return data as RoomSession | null;
 }
 
-export async function claimSeat(roomId: string, memberId: string) {
+export async function claimSeat(roomId: string, memberId: string, seatNo?: number) {
   if (!supabase) throw new Error("Supabase não configurado");
   const { data, error } = await supabase.rpc("claim_room_seat", {
     p_room_id: roomId,
     p_member_id: memberId,
+    p_seat_no: seatNo ?? null,
   });
   if (error) throw error;
   return Number(data);
