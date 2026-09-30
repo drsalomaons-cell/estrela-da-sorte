@@ -10,6 +10,17 @@ export type RoomSession = {
   chat_enabled: boolean;
 };
 
+export type RoomSeat = {
+  id: string;
+  member_id: string;
+  seat_no: number;
+  mic_enabled: boolean;
+  camera_enabled: boolean;
+  joined_at: string;
+  display_name: string;
+  avatar_url: string | null;
+};
+
 export async function getLiveRoom(roomKey?: string): Promise<RoomSession | null> {
   if (!supabase) throw new Error("Supabase não configurado");
   let query = supabase
@@ -44,16 +55,13 @@ export async function leaveSeat(roomId: string, memberId: string) {
   return Boolean(data);
 }
 
-export async function listActiveSeats(roomId: string) {
+export async function listActiveSeats(roomId: string): Promise<RoomSeat[]> {
   if (!supabase) throw new Error("Supabase não configurado");
-  const { data, error } = await supabase
-    .from("room_participants")
-    .select("id,member_id,seat_no,mic_enabled,camera_enabled,joined_at")
-    .eq("room_id", roomId)
-    .is("left_at", null)
-    .order("seat_no");
+  const { data, error } = await supabase.rpc("list_room_seats", {
+    p_room_id: roomId,
+  });
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []) as RoomSeat[];
 }
 
 export function subscribeToRoomSeats(
