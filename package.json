@@ -23,7 +23,8 @@
     "@opentelemetry/sdk-trace-web": "2.11.0",
     "livekit-server-sdk": "2.19.1",
     "@capacitor/core": "^7.4.3",
-    "@capacitor/android": "^7.4.3"
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/app": "^7.1.2"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
