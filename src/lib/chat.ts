@@ -1,5 +1,17 @@
 import { supabase } from "./supabase";
 
+export async function listRoomMessages(roomId: string) {
+  if (!supabase) throw new Error("Supabase não configurado");
+  const { data, error } = await supabase
+    .from("room_chat_messages")
+    .select("id,sender_user_id,body,created_at")
+    .eq("room_id", roomId)
+    .order("created_at", { ascending: true })
+    .limit(50);
+  if (error) throw error;
+  return (data ?? []) as Record<string, unknown>[];
+}
+
 export async function sendRoomMessage(roomId: string, body: string) {
   if (!supabase) throw new Error("Supabase não configurado");
   const { data, error } = await supabase.rpc("send_room_chat_message", {
