@@ -331,7 +331,17 @@ function App() {
           throw new Error("Informe seu nome para criar a conta.");
         }
         const d = await signUp(email.trim(), password, displayName.trim());
-        if (d.session) {
+        const identities = d.user?.identities ?? [];
+
+        // Supabase can return an obfuscated user when this e-mail already
+        // belongs to an existing confirmed account. Do not tell the user
+        // that a new account was created in that case.
+        if (!d.session && d.user && identities.length === 0) {
+          setAuthMode("login");
+          setError(
+            "Este e-mail já possui uma conta. Se ela foi criada com Google, entre pelo Google; a senha digitada aqui não foi criada nessa conta.",
+          );
+        } else if (d.session) {
           setUserEmail(d.user?.email ?? email.trim());
           setSuccess("Conta criada e sessão iniciada.");
         } else {
