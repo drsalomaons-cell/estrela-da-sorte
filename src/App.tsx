@@ -11,7 +11,7 @@ import {
   getLiveRoom, getCurrentMemberId, claimSeat, leaveSeat,
   listActiveSeats, subscribeToRoomSeats, RoomSession,
 } from "./lib/room";
-import { sendRoomMessage, subscribeToRoomChat } from "./lib/chat";
+import { listRoomMessages, sendRoomMessage, subscribeToRoomChat } from "./lib/chat";
 import {
   livekitConfigured, createLiveKitRoom, connectLiveKitRoom,
   enableMicrophone, enableCamera, subscribeLiveKitState, LiveKitMediaState,
@@ -70,6 +70,9 @@ function App() {
   const [voiceError, setVoiceError] = useState("");
   const livekitRoomRef = useRef<Room | null>(null);
   const [callSessionId, setCallSessionId] = useState<string | null>(null);
+  const [videoOpen, setVideoOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const chatRef = useRef<HTMLElement | null>(null);
 
   const isLoggedIn = Boolean(userEmail);
 
@@ -97,6 +100,7 @@ function App() {
       diagnosticSnapshot("Sala carregada", live);
       if (live) {
         setSeats(await listActiveSeats(live.id));
+        setChat(await listRoomMessages(live.id));
         const session = (await supabase.auth.getSession()).data.session;
         if (session?.user) {
           setMemberId(await getCurrentMemberId());
@@ -167,6 +171,20 @@ function App() {
   }, []);
 
   const occupied = new Map(seats.map((s) => [Number(s.seat_no), s]));
+
+  useEffect(() => {
+    const video = videoRef.current;
+    const lk = livekitRoomRef.current;
+    if (!video || !lk || !videoOpen) return;
+    const publication = lk.localParticipant.getTrackPublication(Track.Source.Camera);
+    const track = publication?.track;
+    if (!track) return;
+    track.attach(video);
+    video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    return () => { track.detach(video); };
+  }, [videoOpen, livekitState?.cameraEnabled]);
   const mySeat = useMemo(
     () => seats.find((s) => s.member_id === memberId)?.seat_no ?? null,
     [seats, memberId],
@@ -397,12 +415,31 @@ function App() {
     }
   };
 
+  const refreshRoomData = async () => {
+    if (!room || !supabase) return;
+    setError("");
+    try {
+      const [nextSeats, nextChat] = await Promise.all([listActiveSeats(room.id), listRoomMessages(room.id)]);
+      setSeats(nextSeats);
+      setChat(nextChat);
+      if (memberId) {
+        const [nextGifts, nextBalance] = await Promise.all([listRoomGifts(), getWalletBalance()]);
+        setGifts(nextGifts);
+        setWalletBalance(nextBalance);
+      }
+    } catch (e: any) {
+      setError(e?.message || "Não foi possível atualizar os dados da sala.");
+    }
+  };
+
   const toggleCamera = async () => {
     const lk = livekitRoomRef.current;
     if (!lk) return;
     setVoiceBusy(true);
     try {
-      await enableCamera(lk, !lk.localParticipant.isCameraEnabled);
+      const enabled = !lk.localParticipant.isCameraEnabled;
+      await enableCamera(lk, enabled);
+      setVideoOpen(enabled);
     } catch (e: any) {
       setVoiceError(e?.message || "Não foi possível alterar a câmera.");
     } finally {
@@ -622,13 +659,13 @@ function App() {
                 </p>
               </div>
               <div className="actions">
-                <button onClick={() => void load()}>
+                <button onClick={() => void refreshRoomData()} disabled={loading}>
                   <RefreshCw size={17} /> {t("room.refresh")}
                 </button>
                 <button onClick={() => void toggleCamera()} disabled={!livekitState?.connected || voiceBusy}>
                   <Video size={17} /> {t("room.video")}
                 </button>
-                <button onClick={() => setTab("sala")}>
+                <button onClick={() => chatRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}>
                   <MessageCircle size={17} /> {t("room.chat")}
                 </button>
                 <button className="gold" onClick={() => setGiftOpen(true)} disabled={!memberId}>
@@ -714,7 +751,7 @@ function App() {
                             <button
                               className="seatJoinBtn"
                               type="button"
-                              onClick={() => void join()}
+                              onClick={() => void join(n)}
                               disabled={busy || !memberId || mySeat !== null}
                               aria-label={"Ocupar cadeira " + n}
                             >
@@ -731,8 +768,16 @@ function App() {
               </section>
             )}
 
+            {videoOpen && (
+              <section className="panel videoPanel">
+                <div className="panelTitle"><span><Video size={18} /> Vídeo</span><small>{livekitState?.cameraEnabled ? "Câmera ativa" : "Câmera desligada"}</small></div>
+                <video ref={videoRef} className="localVideo" playsInline muted autoPlay />
+                <button onClick={() => void toggleCamera()} disabled={voiceBusy || !livekitState?.connected}><Video size={15} /> Desligar câmera</button>
+              </section>
+            )}
+
             {room?.chat_enabled && (
-              <section className="panel chatPanel">
+              <section ref={chatRef} className="panel chatPanel">
                 <div className="panelTitle">
                   <span>
                     <MessageCircle size={18} /> {t("room.chatTitle")}
