@@ -18,22 +18,49 @@ jobs:
       - run: npm install
       - run: npm run ci
       - run: npx cap add android
-      - name: Set Android app label and launcher icon
+      - name: Set Android app label, launcher icon and OAuth deep link
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p=Path('android/app/src/main/AndroidManifest.xml')
-          s=p.read_text()
-          s=s.replace('android:label="@string/app_name"','android:label="Estrela da Sorte"')
-          s=s.replace('android:icon="@mipmap/ic_launcher"','android:icon="@drawable/ic_launcher"')
+          p = Path('android/app/src/main/AndroidManifest.xml')
+          s = p.read_text()
+          s = s.replace('android:label="@string/app_name"', 'android:label="Estrela da Sorte"')
+          s = s.replace('android:icon="@mipmap/ic_launcher"', 'android:icon="@drawable/ic_launcher"')
+
+          intent = '''
+                  <intent-filter>
+                      <action android:name="android.intent.action.VIEW" />
+                      <category android:name="android.intent.category.DEFAULT" />
+                      <category android:name="android.intent.category.BROWSABLE" />
+                      <data android:scheme="com.estreladasorte.app" />
+                  </intent-filter>
+                  <intent-filter>
+                      <action android:name="android.intent.action.VIEW" />
+                      <category android:name="android.intent.category.DEFAULT" />
+                      <category android:name="android.intent.category.BROWSABLE" />
+                      <data android:scheme="http" android:host="localhost" />
+                      <data android:scheme="https" android:host="localhost" />
+                  </intent-filter>'''
+
+          marker = '</intent-filter>'
+          # insert extra intent-filters after the first launcher intent-filter block of the main activity
+          if 'com.estreladasorte.app' not in s:
+              idx = s.find(marker)
+              if idx != -1:
+                  end = idx + len(marker)
+                  s = s[:end] + intent + s[end:]
+
           p.write_text(s)
-          q=Path('android/app/src/main/res/drawable/ic_launcher.xml')
+
+          q = Path('android/app/src/main/res/drawable/ic_launcher.xml')
+          q.parent.mkdir(parents=True, exist_ok=True)
           q.write_text('''<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="512dp" android:height="512dp" android:viewportWidth="512" android:viewportHeight="512"><path android:fillColor="#080B24" android:pathData="M110,0 L402,0 Q512,0 512,110 L512,402 Q512,512 402,512 L110,512 Q0,512 0,402 L0,110 Q0,0 110,0 Z"/><path android:fillColor="#FFD978" android:pathData="M256,70 L298,182 L418,192 L326,270 L355,387 L256,325 L157,387 L186,270 L94,192 L214,182 Z"/></vector>''')
+
+          strings = Path('android/app/src/main/res/values/strings.xml')
+          strings.parent.mkdir(parents=True, exist_ok=True)
+          strings.write_text('<resources><string name="app_name">Estrela da Sorte</string><string name="title_activity_main">Estrela da Sorte</string></resources>\n')
+          print('AndroidManifest and resources updated')
           PY
-          mkdir -p android/app/src/main/res/drawable
-          cat > android/app/src/main/res/values/strings.xml <<'EOF'
-          <resources><string name="app_name">Estrela da Sorte</string><string name="title_activity_main">Estrela da Sorte</string></resources>
-          EOF
       - run: npx cap sync android
       - uses: actions/setup-java@v4
         with:
