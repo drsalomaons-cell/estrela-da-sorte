@@ -673,7 +673,7 @@ function App() {
                         </button>
                       </>
                     ) : (
-                      <button onClick={() => void join(n)} disabled={busy}>
+                      <button onClick={() => void join()} disabled={busy}>
                         <LogIn size={16} /> {t("room.join")}
                       </button>
                     )
