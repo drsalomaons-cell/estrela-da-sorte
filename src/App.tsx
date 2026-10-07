@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import "./styles/room.css";
 import RoleHierarchy from "./components/RoleHierarchy";
 import GameCenter from "./components/GameCenter";
 import SlotCenter from "./components/SlotCenter";
