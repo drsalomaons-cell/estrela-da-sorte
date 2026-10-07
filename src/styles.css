@@ -754,3 +754,23 @@ footer b { color: #d3af58; }
 .seatJoinBtn { width: 38px; height: 38px; font-size: 23px; }
 @media (max-width: 700px) { .seats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 7px; } .seat { min-height: 78px; padding: 6px 4px; } .seat .avatar { width: 32px; height: 32px; } .seatJoinBtn { width: 34px; height: 34px; font-size: 21px; } .seatLeaveBtn { padding: 4px 6px; } }
 @media (max-width: 420px) { .seats { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; } .seat b { font-size: 9px; } .seat span { font-size: 8px; } }
+
+
+/* ===== SALA VISUAL V2 - auditada e aplicada ===== */
+.app { background: radial-gradient(circle at 50% -15%, #302b63 0, #0f0c29 45%, #07091b 100%); }
+.hero { background: linear-gradient(135deg, rgba(15,12,41,.96), rgba(48,43,99,.72)); border-color: rgba(212,175,55,.28); box-shadow: 0 16px 55px rgba(0,0,0,.45), 0 0 28px rgba(212,175,55,.08); }
+.hero h1 { color: #f0e6d2; text-shadow: 0 0 18px rgba(212,175,55,.18); }
+.panel { background: linear-gradient(145deg, rgba(15,12,41,.96), rgba(32,28,70,.88)); border-color: rgba(212,175,55,.20); }
+.panelTitle span { color: #f0e6d2; }
+.seats { gap: 12px; }
+.seat { min-height: 104px; border: 1px solid rgba(255,255,255,.12); border-radius: 18px; background: rgba(255,255,255,.055); transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
+.seat:not(.live):hover { transform: translateY(-2px); border-color: rgba(212,175,55,.65); box-shadow: 0 0 22px rgba(212,175,55,.12); }
+.seat.live { background: linear-gradient(145deg, #2a2458, #4a3f9c); border-color: #d4af37; box-shadow: 0 0 18px rgba(212,175,55,.14); }
+.seat .avatar { border-color: #d4af37; box-shadow: 0 0 12px rgba(212,175,55,.14); }
+.seatJoinBtn { border-color: #d4af37; background: linear-gradient(135deg, #80602b, #d4af37); box-shadow: 0 0 20px rgba(212,175,55,.20); }
+.seatJoinBtn:not(:disabled):hover { transform: scale(1.06); }
+.roomActions button:hover, .actions button:hover { border-color: rgba(212,175,55,.65); }
+.actions .gold { background: linear-gradient(135deg, #80602b, #d4af37); box-shadow: 0 0 18px rgba(212,175,55,.14); }
+.chatPanel { border-color: rgba(212,175,55,.18); }
+@media (max-width: 700px) { .seats { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 7px; } .seat { min-height: 82px; } }
+@media (max-width: 420px) { .seats { grid-template-columns: repeat(4, minmax(0,1fr)); gap: 5px; } .seat { min-height: 76px; border-radius: 14px; } }
