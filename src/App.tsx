@@ -699,7 +699,7 @@ function App() {
                     <Crown size={18} /> {t("room.seats")}
                   </span>
                   <small>
-                    {seats.length}/{room.seats} {t("room.occupied")} • máximo 30
+                    {seats.length}/{room.seats} {t("room.occupied")}
                   </small>
                 </div>
                 <div className="roomActions">

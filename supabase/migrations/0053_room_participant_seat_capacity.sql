@@ -1,0 +1,1 @@
+alter table public.room_participants drop constraint if exists room_participants_seat_no_check; alter table public.room_participants add constraint room_participants_seat_no_check check (seat_no >= 1 and seat_no <= 100);
