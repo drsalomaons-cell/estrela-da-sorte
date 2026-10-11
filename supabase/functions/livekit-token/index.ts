@@ -4,65 +4,66 @@ import { AccessToken } from "npm:livekit-server-sdk@2.19.1";
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Content-Type": "application/json",
 };
 
-Deno.serve(async (req) => {
+function reply(status: number, body: Record<string, unknown>) {
+  return new Response(JSON.stringify(body), { status, headers: corsHeaders });
+}
+
+Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "Método não permitido" }), {
-      status: 405, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+  if (req.method !== "POST") return reply(405, { error: "method_not_allowed" });
+
+  const authorization = req.headers.get("Authorization");
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const livekitUrl = Deno.env.get("LIVEKIT_URL");
+  const livekitKey = Deno.env.get("LIVEKIT_API_KEY");
+  const livekitSecret = Deno.env.get("LIVEKIT_API_SECRET");
+
+  if (!authorization || !supabaseUrl || !serviceRoleKey) {
+    return reply(401, { error: "supabase_auth_not_configured" });
+  }
+  if (!livekitUrl || !livekitKey || !livekitSecret) {
+    return reply(503, { error: "livekit_credentials_not_configured" });
   }
 
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) throw new Error("Autenticação necessária");
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    const apiKey = Deno.env.get("LIVEKIT_API_KEY");
-    const apiSecret = Deno.env.get("LIVEKIT_API_SECRET");
-
-    if (!supabaseUrl || !serviceRoleKey) throw new Error("Supabase não configurado");
-    if (!apiKey || !apiSecret) throw new Error("Credenciais LiveKit não configuradas");
-
-    const supabase = createClient(supabaseUrl, serviceRoleKey, {
-      global: { headers: { Authorization: authHeader } },
-      auth: { persistSession: false },
+    const userClient = createClient(supabaseUrl, serviceRoleKey, {
+      global: { headers: { Authorization: authorization } },
+      auth: { persistSession: false, autoRefreshToken: false },
     });
+    const { data: userData, error: userError } = await userClient.auth.getUser();
+    if (userError || !userData.user) return reply(401, { error: "invalid_user_session" });
 
-    const token = authHeader.slice("Bearer ".length);
-    const { data: userData, error: userError } = await supabase.auth.getUser(token);
-    if (userError || !userData.user) throw new Error("Sessão inválida");
+    const payload = await req.json().catch(() => ({}));
+    const roomName = typeof payload.room_name === "string" ? payload.room_name.trim() : "";
+    if (!roomName || roomName.length > 120) return reply(400, { error: "room_name_required" });
 
-    const body = await req.json().catch(() => ({}));
-    const roomName = typeof body.room_name === "string" ? body.room_name.trim() : "";
-    if (!roomName || roomName.length > 120) throw new Error("room_name inválido");
+    const { data: room, error: roomError } = await userClient
+      .from("room_sessions")
+      .select("id,room_key,status")
+      .eq("room_key", roomName)
+      .maybeSingle();
+    if (roomError) return reply(403, { error: "room_lookup_failed" });
+    if (!room || room.status !== "live") return reply(404, { error: "live_room_not_found" });
 
-    const identity = userData.user.id;
-    const accessToken = new AccessToken(apiKey, apiSecret, {
-      identity,
-      name: identity,
-      ttl: "1h",
+    const token = new AccessToken(livekitKey, livekitSecret, {
+      identity: userData.user.id,
+      name: userData.user.user_metadata?.display_name ?? userData.user.email ?? userData.user.id,
+      ttl: "15m",
     });
-
-    accessToken.addGrant({
+    token.addGrant({
       roomJoin: true,
-      room: roomName,
+      room: room.room_key,
       canPublish: true,
       canSubscribe: true,
       canPublishData: true,
     });
-
-    const jwt = await accessToken.toJwt();
-    return new Response(JSON.stringify({ token: jwt, url: Deno.env.get("LIVEKIT_URL") ?? null }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Erro interno";
-    return new Response(JSON.stringify({ error: message }), {
-      status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return reply(200, { token: await token.toJwt(), url: livekitUrl });
+  } catch {
+    return reply(500, { error: "token_generation_failed" });
   }
 });

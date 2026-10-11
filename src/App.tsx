@@ -14,7 +14,7 @@ import {
 } from "./lib/room";
 import { listRoomMessages, sendRoomMessage, subscribeToRoomChat } from "./lib/chat";
 import {
-  livekitConfigured, createLiveKitRoom, connectLiveKitRoom,
+  createLiveKitRoom, connectLiveKitRoom,
   enableMicrophone, enableCamera, subscribeLiveKitState, LiveKitMediaState,
 } from "./lib/livekit";
 import { getLiveKitToken } from "./lib/livekit-token";
@@ -191,19 +191,23 @@ function App() {
     [seats, memberId],
   );
 
+  const stableRoomId = room?.id ?? null;
+  const stableRoomKey = room?.room_key ?? null;
+  const hasSeat = mySeat !== null;
+
   useEffect(() => {
     let disposed = false;
     let stopState: undefined | (() => void);
     let localCallId: string | null = null;
     const connectVoice = async () => {
-      if (disposed || !room || !memberId || !mySeat || !livekitConfigured || livekitRoomRef.current) return;
+      if (disposed || !stableRoomId || !stableRoomKey || !memberId || !hasSeat || livekitRoomRef.current) return;
       setVoiceBusy(true);
       setVoiceError("");
       try {
         const auth = await supabase?.auth.getUser();
         const user = auth?.data.user;
         if (!user) throw new Error("Login necessário para conectar a voz");
-        const authToken = await getLiveKitToken(room.room_key);
+        const authToken = await getLiveKitToken(stableRoomKey);
         const lk = createLiveKitRoom();
         livekitRoomRef.current = lk;
         stopState = subscribeLiveKitState(lk, setLivekitState);
@@ -220,9 +224,9 @@ function App() {
         const { data: call, error: callError } = await supabase!
           .from("call_sessions")
           .insert({
-            room_id: room.id,
+            room_id: stableRoomId,
             call_type: "voice",
-            livekit_room_name: room.room_key,
+            livekit_room_name: stableRoomKey,
             started_by: user.id,
           })
           .select("id")
@@ -259,7 +263,7 @@ function App() {
         setCallSessionId(null);
       }
     };
-  }, [room, memberId, mySeat, livekitConfigured]);
+  }, [stableRoomId, stableRoomKey, memberId, hasSeat]);
 
   const join = async (seatNo?: number) => {
     if (!room || !memberId) return;
@@ -753,7 +757,7 @@ function App() {
                               className="seatJoinBtn"
                               type="button"
                               onClick={() => void join(n)}
-                              disabled={busy || !memberId || mySeat !== null}
+                              disabled={busy || !memberId}
                               aria-label={"Ocupar cadeira " + n}
                             >
                               +
